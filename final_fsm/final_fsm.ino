@@ -62,15 +62,94 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sKEY_PRESSED_LEARNING:
       break;
+    //6
     case sTESTING_COUNTDOWN:
+      if (countdown >= 0 and mils - saved_clock >= 500) {
+        display(countdown);
+        countdown -= 1;
+        saved_clock = mils;
+        next_state = sTESTING_COUNTDOWN;
+      } else if (countdown < 0 and mils - saved_clock >= 500) {
+        display(countdown);
+        countdown = 3;
+        next_state = sWAIT_FOR_KEY_TESTING;
+      } else {
+        next_state = sTESTING_COUNTDOWN;
+      }
+
       break;
+
+    //7 
     case sWAIT_FOR_KEY_TESTING:
+     if (num_keys = 0 and curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index]){
+        display(curr_song_index + 1 + “/” + song_end + 1);
+        curr_song_index += 1;
+        saved_clock := mils;
+        next_state = sWAIT_FOR_KEY_TESTING;
+      } else if(num_keys = 1 and curr_song_index < song_end and last_key = notes[curr_song_index]){
+        // PLAY NOTE-- DURATION??
+        play_note(last_key, );
+        light_led(song_notes[curr_song_index], GREEN);
+        curr_song_index += 1;
+        saved_clock = mils;
+        num_correct_notes++;
+        next_state = sKEY_PRESSED_TEACHING;
+      } else if (num_keys = 1 and curr_song_index < song_end and last_key != notes[curr_song_index]) {
+        // ?? check play_note specs
+        play_note(last_key, );
+        light_led(song_notes[curr_song_index], RED);
+        curr_song_index += 1;
+        saved_clock = mils;
+        next_state = sKEY_PRESSED_TEACHING;
+      } else if (num_keys = 0 and curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index] / 2) {
+        //play_note(song_notes[curr_song_index], note_durations[curr_song_index]);
+        light_led(song_notes[curr_song_index], RED);
+        next_state = sNO_KEY_PRESSED_TEACHING;
+      } else if (curr_song_index = song_end) {
+        display(num_correct_notes, song_end + 1);
+        next_state = sGAME_OVER;
+      } else {
+        next_state = sWAIT_FOR_KEY_TESTING;
+      }
       break;
+      
+    //8 
     case sKEY_PRESSED_TEACHING:
+      if (mils - saved_clock >= note_durations[curr_song_index]) {
+        display(curr_song_index + 1 + “/” + song_end + 1);
+        reset_keys();
+        curr_song_index += 1;
+        saved_clock = mils;
+        next_state = sWAIT_FOR_KEY_TESTING;
+    } else {
+      next_state = sKEY_PRESSED_TEACHING:
+    }
       break;
+      
+    // 9 
     case sNO_KEY_PRESSED_TEACHING:
+      if (curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index]) {
+        display(curr_song_index + “/” + song_end);
+        curr_song_index += 1;
+        saved_clock = mils;
+        next_state = sWAIT_FOR_KEY_TESTING;
+      } else {
+        next_state = sNO_KEY_PRESSED_TEACHING;
+      }
       break;
+
+    // 10
     case sGAME_OVER:
+      if (mils - saved_clock >= 10000) {
+        display(TESTING MODE OVER);
+        countdown = 3;
+        saved_clock = mils;
+        num_currect_notes = 0;
+        next_state = sWAIT_FOR_MODE;
+      } else {
+        next_state = sGAME_OVER;
+      }
+      
       break;
   }
   return next_state;
