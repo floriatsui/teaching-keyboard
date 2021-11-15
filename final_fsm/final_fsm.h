@@ -39,7 +39,13 @@ typedef enum {
   G = 0;
   A = 1;
   B = 2;
+  NO_NOTE = -1; 
 } note;
+
+typedef enum {
+  GREEN = 0; 
+  RED = 1; 
+} color; 
 
 /*
  * Variables to keep track of inputs

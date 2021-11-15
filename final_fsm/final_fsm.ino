@@ -52,41 +52,82 @@ void loop() {
 state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode curr_mode) {
   state next_state;
   switch(cur_state) {
-    case sWAIT_FOR_MODE:
+    case sWAIT_FOR_MODE: // 1
       break;
-    case sDEMO = 2:
+    case sDEMO: // 2
+      if (curr_song_index < song_end) { // 2-2
+        play_note(song_notes[curr_song_index], note_durations[curr_song_index]); 
+        saved_clock = mils; 
+        curr_song_index += 1; 
+        next_state = sDEMO; 
+      } else if (curr_song_index == song_end) { // 2-3
+        display("BEGIN LEARNING"); 
+        curr_song_index = 0; 
+        countdown = 3; 
+        next_state = sLEARNING_COUNTDOWN; 
+      }
       break;
-    case sLEARNING_COUNTDOWN:
-      break;
-    case sWAIT_FOR_KEY_LEARNING:
-      break;
-    case sKEY_PRESSED_LEARNING:
-      break;
-    //6
-    case sTESTING_COUNTDOWN:
-      if (countdown >= 0 and mils - saved_clock >= 500) {
+    case sLEARNING_COUNTDOWN: // 3
+      if (countdown >= 0 && mils - saved_clock >= 500) { // 3-3
         display(countdown);
         countdown -= 1;
         saved_clock = mils;
         next_state = sTESTING_COUNTDOWN;
-      } else if (countdown < 0 and mils - saved_clock >= 500) {
+      } else if (countdown < 0 && mils - saved_clock >= 500) { // 3-4
+        display(countdown); 
+        countdown = 3; 
+        next_state = sWAIT_KEY_LEARNING; 
+      }
+      break;
+    case sWAIT_FOR_KEY_LEARNING: // 4
+      if (num_keys == 0 && curr_song_index < song_end && 
+      mils - saved_clock >= note_durations[curr_song_index]) { // 4-4
+        dim_led(song_notes[curr_song_index+1], note_durations[curr_song_index+1], GREEN); 
+        display(String(curr_song_index) + "/" + String(song_end + 1)); 
+        curr_song_index += 1; 
+        saved_clock = mils; 
+        next_state = sWAIT_FOR_KEY_LEARNING; 
+      } else if (num_keys == 1 && curr_song_index < song_end) { // 4-5
+        play_note(last_key, note_durations[curr_song_index]); 
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN); 
+        saved_clock = mils; 
+        next_state = sKEY_PRESSED_LEARNING; 
+      } else if (curr_song_index == song_end) { // 4-1 
+        display("LEARNING MODE OVER"); 
+        countdown = 3; 
+        saved_clock = mils; 
+        next_state = sWAIT_FOR_MODE; 
+      }
+      break;
+    case sKEY_PRESSED_LEARNING: // 5
+      if (mils - saved_clock >= note_durations[curr_song_index]) { // 5-4
+        dim_led(song_notes[curr_song_index+1], note_durations[curr_song_index+1], GREEN); 
+        display(String(curr_song_index + 1) + "/" + String(song_end + 1)); 
+        saved_clock = mils; 
+        next_state = sWAIT_FOR_KEY_LEARNING; 
+      }
+      break;
+    case sTESTING_COUNTDOWN: // 6
+      if (countdown >= 0 && mils - saved_clock >= 500) {
+        display(countdown);
+        countdown -= 1;
+        saved_clock = mils;
+        next_state = sTESTING_COUNTDOWN;
+      } else if (countdown < 0 && mils - saved_clock >= 500) {
         display(countdown);
         countdown = 3;
         next_state = sWAIT_FOR_KEY_TESTING;
       } else {
         next_state = sTESTING_COUNTDOWN;
       }
-
       break;
-
-    //7 
-    case sWAIT_FOR_KEY_TESTING:
-     if (num_keys = 0 and curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index]){
+    case sWAIT_FOR_KEY_TESTING: // 7 
+     if (num_keys = 0 && curr_song_index < song_end && mils - saved_clock >=note_durations[curr_song_index]){
         display(curr_song_index + 1 + “/” + song_end + 1);
         curr_song_index += 1;
         saved_clock := mils;
         next_state = sWAIT_FOR_KEY_TESTING;
-      } else if(num_keys = 1 and curr_song_index < song_end and last_key = notes[curr_song_index]){
+      } else if(num_keys = 1 && curr_song_index < song_end && last_key = notes[curr_song_index]){
         // PLAY NOTE-- DURATION??
         play_note(last_key, );
         light_led(song_notes[curr_song_index], GREEN);
@@ -94,14 +135,14 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         saved_clock = mils;
         num_correct_notes++;
         next_state = sKEY_PRESSED_TEACHING;
-      } else if (num_keys = 1 and curr_song_index < song_end and last_key != notes[curr_song_index]) {
+      } else if (num_keys = 1 && curr_song_index < song_end && last_key != notes[curr_song_index]) {
         // ?? check play_note specs
         play_note(last_key, );
         light_led(song_notes[curr_song_index], RED);
         curr_song_index += 1;
         saved_clock = mils;
         next_state = sKEY_PRESSED_TEACHING;
-      } else if (num_keys = 0 and curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index] / 2) {
+      } else if (num_keys = 0 && curr_song_index < song_end && mils - saved_clock >=note_durations[curr_song_index] / 2) {
         //play_note(song_notes[curr_song_index], note_durations[curr_song_index]);
         light_led(song_notes[curr_song_index], RED);
         next_state = sNO_KEY_PRESSED_TEACHING;
@@ -112,22 +153,18 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         next_state = sWAIT_FOR_KEY_TESTING;
       }
       break;
-      
-    //8 
-    case sKEY_PRESSED_TEACHING:
+    case sKEY_PRESSED_TEACHING: // 8 
       if (mils - saved_clock >= note_durations[curr_song_index]) {
         display(curr_song_index + 1 + “/” + song_end + 1);
         reset_keys();
         curr_song_index += 1;
         saved_clock = mils;
         next_state = sWAIT_FOR_KEY_TESTING;
-    } else {
-      next_state = sKEY_PRESSED_TEACHING:
-    }
-      break;
-      
-    // 9 
-    case sNO_KEY_PRESSED_TEACHING:
+      } else {
+        next_state = sKEY_PRESSED_TEACHING:
+      }
+        break;
+    case sNO_KEY_PRESSED_TEACHING: // 9 
       if (curr_song_index < song_end and mils - saved_clock >=note_durations[curr_song_index]) {
         display(curr_song_index + “/” + song_end);
         curr_song_index += 1;
@@ -137,10 +174,8 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         next_state = sNO_KEY_PRESSED_TEACHING;
       }
       break;
-
-    // 10
-    case sGAME_OVER:
-      if (mils - saved_clock >= 10000) {
+    case sGAME_OVER: // 10
+      if (mils - saved_clock >= 10000) { 
         display(TESTING MODE OVER);
         countdown = 3;
         saved_clock = mils;
