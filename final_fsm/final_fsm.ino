@@ -53,6 +53,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
   state next_state;
   switch(cur_state) {
     case sWAIT_FOR_MODE: // 1
+      // TODO: do we need a transition here? 
       break;
     case sDEMO: // 2
       if (curr_song_index < song_end) { // 2-2
