@@ -25,14 +25,14 @@ typedef enum {
   sKEY_PRESSED_LEARNING = 5,
   sTESTING_COUNTDOWN = 6,
   sWAIT_FOR_KEY_TESTING = 7,
-  sKEY_PRESSED_TEACHING = 8,
-  sNO_KEY_PRESSED_TEACHING = 9,
+  sKEY_PRESSED_TESTING = 8,
+  sNO_KEY_PRESSED_TESTING = 9,
   sGAME_OVER = 10,
 } state;
 
 typedef enum {
   LEARNING = 0,
-  TEACHING = 1,
+  TESTING = 1,
 } mode;
 
 typedef enum {

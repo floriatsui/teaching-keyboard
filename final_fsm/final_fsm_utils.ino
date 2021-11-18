@@ -118,9 +118,13 @@ void update_inputs() {
     }
     if (cap_reading > thresholds[i]) {
       if ((int) last_key != i) {
-        num_keys += 1;
+        num_keys = 1;
+      } else {
+        num_keys = 0; 
       }
       last_key = (note) i;
+    } else {
+      num_keys = 0;
     }
   }
 }
@@ -190,9 +194,22 @@ void dim_led(note curr_note, int duration, String color) {
   
 }
 
+
+void play_demo_note(note curr_note, int duration) {
+  // move duration calculation to its own helper if necessary
+  Serial.println("play demo note"); 
+  // first argument is the pin 
+  tone(4, curr_note, duration);
+}
+
 /*
  * Play the desired note for the specified duration
  */
-void play_note(note curr_note, int duration) {
-  
+void play_note(note curr_note, int duration, int saved_clock) {
+  // move duration calculation to its own helper if necessary
+  Serial.println("play note"); 
+  int offset = millis() - saved_clock; 
+  int play_duration = duration - offset; 
+  // first argument is the pin 
+  tone(4, curr_note, play_duration);
 }
