@@ -180,6 +180,28 @@ void display_message(String message) {
  * duration and frequency
  */
 void light_led(note curr_note, int duration, String color, int frequency) {
+
+  int thisNote;
+  
+  if (note == G){
+    if (color == "GREEN"){
+      thisNote = Ggreen;
+    } else {
+      thisNote = Gred;
+    }
+  } else if (note == A){
+    if (color == "GREEN"){
+      thisNote = Agreen;
+    } else {
+      thisNote = Ared;
+    }
+  } else {
+    if (color == "GREEN"){
+      thisNote = Bgreen;
+    } else {
+      thisNote = Bred;
+    }
+  }
   
 }
 
@@ -187,6 +209,42 @@ void light_led(note curr_note, int duration, String color, int frequency) {
  * Dim the desired LED over the duration specified
  */
 void dim_led(note curr_note, int duration, String color) {
+  // note -- will be one of G, A, or B
+  // duration -- milliseconds
+  // color-- "GREEN" or "RED"
+
+  // PWM is 0 to 255, we want to dim over the duration of the note
+  int pwm = 255;
+  int deltaPWM = 255/10;
+  int delayTime = duration / 10;
+  int thisNote;
+  
+  if (note == G){
+    if (color == "GREEN"){
+      thisNote = Ggreen;
+    } else {
+      thisNote = Gred;
+    }
+  } else if (note == A){
+    if (color == "GREEN"){
+      thisNote = Agreen;
+    } else {
+      thisNote = Ared;
+    }
+  } else {
+    if (color == "GREEN"){
+      thisNote = Bgreen;
+    } else {
+      thisNote = Bred;
+    }
+  }
+
+  while (pwm >= 0){
+    analogWrite(thisNote, pwm);
+    delay(delayTime);
+    pwm -= deltaPWM;
+  }
+
   
 }
 

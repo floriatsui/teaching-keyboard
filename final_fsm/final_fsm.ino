@@ -53,7 +53,16 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
   state next_state;
   switch(cur_state) {
     case sWAIT_FOR_MODE: // 1
-      // TODO: do we need a transition here? 
+      // TODO: do we need a transition here?
+      if (mils - saved_clock >= 10000 ∧ set_mode() == TEST){
+        // DISPLAY something here??
+        next_state = sTESTING_COUNTDOWN;
+      } else if (mils - saved_clock >= 10000){
+        // DISPLAY something here??
+        next_state = sDEMO;
+      } else{
+        next_state = sWAIT_FOR_MODE;
+      }
       break;
     case sDEMO: // 2
       if (curr_song_index < song_end) { // 2-2
