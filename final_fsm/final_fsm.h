@@ -1,17 +1,27 @@
 #include <CapacitiveSensor.h>
 #include <LiquidCrystal.h>
 #include <ezButton.h>
-
-int cap_sensors[3];
-int thresholds[3];
+#include "pitches.h"
 
 /*
  * Initialize capsensors on pins 7, 8, 9 with 11 being the driving pin for all
  */
-CapacitiveSensor G = CapacitiveSensor(11, 7);
-CapacitiveSensor A = CapacitiveSensor(11, 8);
-CapacitiveSensor B = CapacitiveSensor(11, 9);
-ezButton toggleSwitch(10);
+CapacitiveSensor G = CapacitiveSensor(11, 8);
+CapacitiveSensor A = CapacitiveSensor(11, 9);
+CapacitiveSensor B = CapacitiveSensor(11, 10);
+ezButton toggleSwitch(0);
+
+int cap_sensors[3]; 
+int thresholds[3];
+
+int Ggreen = 5;
+int Gred = 4;
+int Agreen = 2;
+int Ared = 1;
+int Bgreen = 7;
+int Bred = 6;
+
+int PB_PIN = 12;
 
 /*
  * Type definitions for states, modes, and notes
@@ -36,22 +46,15 @@ typedef enum {
 } mode;
 
 typedef enum {
-  G = 0;
-  A = 1;
-  B = 2;
-  NO_NOTE = -1; 
-} note;
-
-typedef enum {
-  GREEN = 0; 
-  RED = 1; 
+  GREEN = 0,
+  RED = 1, 
 } color; 
 
 /*
  * Variables to keep track of inputs
  */
 mode curr_mode;
-note last_key;
+int last_key;
 int num_keys;
 
 bool test_all_tests(); // TODO
@@ -80,8 +83,8 @@ void set_mode();
 void reset_keys();
 void display_curr_index(int curr_index, int total_notes);
 void display_message(String message);
-void light_led(note curr_note, int duration, String color, int frequency); // TODO
-void dim_led(note curr_note, int duration, String color); // TODO
-void play_note(note curr_note, int duration); // TODO
+void light_led(int curr_note, int duration, color c, int frequency); // TODO
+void dim_led(int curr_note, int duration, color c); // TODO
+void play_note(int curr_note, int duration, int saved_clock); // TODO
 
 state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode curr_mode);
