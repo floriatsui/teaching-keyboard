@@ -29,9 +29,9 @@ void setup() {
   keys[MIDDLE] = 9;
   keys[RIGHT] = 10;
 
-  key_threshold[LEFT] = 950;
+  key_threshold[LEFT] = 650;
   key_threshold[MIDDLE] = 700;
-  key_threshold[RIGHT] = 700;
+  key_threshold[RIGHT] = 600;
 
   key_notes[LEFT] = NOTE_G5; 
   key_notes[MIDDLE] = NOTE_A5;

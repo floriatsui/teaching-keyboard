@@ -9,13 +9,14 @@
 CapacitiveSensor G = CapacitiveSensor(11, 8);
 CapacitiveSensor A = CapacitiveSensor(11, 9);
 CapacitiveSensor B = CapacitiveSensor(11, 10);
-ezButton toggleSwitch(0);
+ezButton toggleSwitch(5);
 
 int cap_sensors[3]; 
 int thresholds[3];
+int keys[3]; 
 
-int Ggreen = 5;
-int Gred = 4;
+int Ggreen = 3;
+int Gred = 0;
 int Agreen = 2;
 int Ared = 1;
 int Bgreen = 7;

@@ -6,7 +6,9 @@ int num_correct_keys, saved_clock, countdown;
 
 // Global song constants
 int song_end = 17;
-int note_durations[] = {1000/4, 1000/4, 1000/2, 1000/4, 1000/4, 1000/2, 1000/8, 1000/8, 1000/8, 1000/8, 1000/8, 1000/8, 1000/8, 1000/8, 1000/4, 1000/4, 1000/2};
+//int note_durations[] = {2500, 2500, 5000, 2500, 2500, 5000, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 2500, 2500, 5000};
+int note_durations[] = {800, 800, 1600, 800, 800, 1600, 400, 400, 400, 400, 400, 400, 400, 400, 800, 800, 1600};
+
 
 int song_notes[] = {NOTE_B5, NOTE_A5, NOTE_G5, NOTE_B5, NOTE_A5, NOTE_G5, 
                     NOTE_G5, NOTE_G5, NOTE_G5, NOTE_G5, NOTE_A5,NOTE_A5,
@@ -31,6 +33,10 @@ void setup() {
   thresholds[1] = 700;
   thresholds[2] = 700;
 
+  keys[0] = NOTE_G5;
+  keys[1] = NOTE_A5;
+  keys[2] = NOTE_B5;
+
   //test_calibration();
   
   CURRENT_STATE = (state) 1;
@@ -49,7 +55,6 @@ void setup() {
    pinMode(Bred, OUTPUT);
    
    toggleSwitch.setDebounceTime(50);
-
   // TODO: add song parsing here
 
   //test_all_tests();
@@ -72,7 +77,8 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
     case sWAIT_FOR_MODE: // 1  
       Serial.println(mils); 
       Serial.println(saved_clock);   
-      delay(500);  
+      analogWrite(Ggreen, 0); 
+      //delay(500);  
       if (mils - saved_clock >= 5000 && curr_mode == LEARNING) { // 1-2
         //display("LEARNING DEMO"); 
         Serial.println("LEARNING DEMO"); 
@@ -91,6 +97,11 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sDEMO: // 2
       if (curr_song_index < song_end) { // 2-2
+        Serial.println("note duration: " + String(note_durations[curr_song_index]));
+        if (curr_song_index != 0) {
+          light_led(song_notes[curr_song_index-1], note_durations[curr_song_index-1], GREEN, 0); 
+        }
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 255); 
         play_demo_note(song_notes[curr_song_index], note_durations[curr_song_index]); 
         saved_clock = mils; 
         curr_song_index += 1; 
@@ -98,6 +109,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       } else if (curr_song_index == song_end) { // 2-3
         //display("BEGIN LEARNING MODE"); 
         Serial.println("BEGIN LEARNING MODE"); 
+        light_led(song_notes[song_end-1], note_durations[song_end-1], GREEN, 0); 
         saved_clock = mils; 
         curr_song_index = 0; 
         countdown = 3; 
@@ -106,7 +118,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sLEARNING_COUNTDOWN: // 3
       Serial.println("in countdown"); 
-      delay(1000); 
+      //delay(1000); 
       if (countdown > 0 && mils - saved_clock >= 1000) { // 3-3
         //display(countdown);
         Serial.println("printing countdown"); 
@@ -114,11 +126,11 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         countdown -= 1;
         saved_clock = mils;
         next_state = sLEARNING_COUNTDOWN; 
-        delay(500); 
+        //delay(500); 
       } else if (countdown <= 0 && mils - saved_clock >= 1000) { // 3-4
         //display("BEGIN PLAYING"); 
         Serial.println("BEGIN PLAYING"); 
-        dim_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN); 
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 255); 
         countdown = 3; 
         next_state = sWAIT_FOR_KEY_LEARNING; 
       } else {
@@ -127,16 +139,24 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sWAIT_FOR_KEY_LEARNING: // 4
       Serial.println("in learning mode pls pause"); 
-      delay(500); 
+      //delay(500); 
       if (num_keys == 0 && curr_song_index < song_end && 
       mils - saved_clock >= note_durations[curr_song_index]) { // 4-4
-        //dim_led(song_notes[curr_song_index+1], note_durations[curr_song_index+1], GREEN); 
+
+        // make sure led is off for current/previous note
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 0); 
+
+        // light led for next note
+        light_led(song_notes[curr_song_index+1], note_durations[curr_song_index+1], GREEN, 255); 
+        
         //display(String(curr_song_index + 2) + "/" + String(song_end)); 
         Serial.println(String(curr_song_index + 2) + "/ " + String(song_end));
         curr_song_index += 1; 
         saved_clock = mils; 
         next_state = sWAIT_FOR_KEY_LEARNING; 
       } else if (num_keys == 1 && curr_song_index < song_end) { // 4-5
+        // TODO: check 
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 0); 
         play_note(last_key, note_durations[curr_song_index], saved_clock); 
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 100); 
         saved_clock = mils; 

@@ -118,12 +118,8 @@ void update_inputs() {
         break;        
     }
     if (cap_reading > thresholds[i]) {
-      if ((int) last_key != i) {
-        num_keys = 1;
-      } else {
-        num_keys = 0; 
-      }
-      last_key = i;
+      num_keys = 1;
+      last_key = keys[i];
     } else {
       num_keys = 0;
     }
@@ -209,11 +205,8 @@ void light_led(int curr_note, int duration, color c, int frequency) {
       thisNote = Bred;
     }
   }
-
+  Serial.println(thisNote); 
   analogWrite(thisNote, frequency);
-  delay(duration);
-
-  
 }
 
 /*
@@ -264,8 +257,10 @@ void play_demo_note(int curr_note, int duration) {
   // move duration calculation to its own helper if necessary
   Serial.println("play demo note"); 
   // first argument is the pin 
+  Serial.println(duration);
   tone(12, curr_note, duration);
-  delay(500); 
+  delay(duration); 
+  noTone(12); 
 }
 
 /*
@@ -278,4 +273,6 @@ void play_note(int curr_note, int duration, int saved_clock) {
   int play_duration = duration - offset; 
   // first argument is the pin 
   tone(12, curr_note, play_duration);
+  delay(play_duration);
+  noTone(12); 
 }
