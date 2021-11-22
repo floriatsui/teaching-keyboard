@@ -9,7 +9,9 @@
 CapacitiveSensor G = CapacitiveSensor(11, 8);
 CapacitiveSensor A = CapacitiveSensor(11, 9);
 CapacitiveSensor B = CapacitiveSensor(11, 10);
+
 ezButton toggleSwitch(5);
+
 
 int cap_sensors[3]; 
 int thresholds[3];
@@ -23,6 +25,7 @@ int Bgreen = 7;
 int Bred = 6;
 
 int PB_PIN = 12;
+
 
 /*
  * Type definitions for states, modes, and notes

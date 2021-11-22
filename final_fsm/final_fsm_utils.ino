@@ -5,6 +5,7 @@
 const int rs = 0, en = 1, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
+
 /*
  * Initialize system: set up LCD
  */
@@ -120,8 +121,6 @@ void update_inputs() {
     if (cap_reading > thresholds[i]) {
       num_keys = 1;
       last_key = keys[i];
-    } else {
-      num_keys = 0;
     }
   }
 }
@@ -142,9 +141,9 @@ void set_mode() {
   }
     
   else {
-    Serial.println("Learning Mode");
+    //Serial.println("Learning Mode");
     // lcd.print("Learning mode!");
-    curr_mode = LEARNING;
+    curr_mode = TESTING;
     return;
   }
 }
@@ -271,8 +270,10 @@ void play_note(int curr_note, int duration, int saved_clock) {
   Serial.println("play note"); 
   int offset = millis() - saved_clock; 
   int play_duration = duration - offset; 
+  Serial.println(play_duration); 
   // first argument is the pin 
-  tone(12, curr_note, play_duration);
-  delay(play_duration);
+  tone(12, curr_note, 1000);
+  delay(1000);
   noTone(12); 
+  Serial.println("end of play note"); 
 }
