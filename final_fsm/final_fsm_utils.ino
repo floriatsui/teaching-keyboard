@@ -90,7 +90,8 @@ void test_calibration() {
       }
       if (cap_reading > thresholds[i]) {
         lcd.setCursor(0,0);
-        lcd.print(labels[i]);
+        //lcd.print(labels[i]);
+        Serial1.write(labels[i] + "*");
       }
     }
     delay(50);
@@ -134,18 +135,41 @@ void set_mode() {
   int state = toggleSwitch.getState();
 
   if (state == HIGH){
-    Serial.println("Testing Mode");
+    Serial1.write("Testing Mode*");
     // lcd.print("Testing mode!");
     curr_mode = TESTING;
     return;
   }
     
   else {
-    //Serial.println("Learning Mode");
+    Serial.println("Learning Mode");
     // lcd.print("Learning mode!");
-    curr_mode = TESTING;
+    curr_mode = LEARNING;
     return;
   }
+  delay(100);
+}
+
+void update_mode() {
+
+  Serial.println("switching mode");
+
+  if (curr_mode == TESTING) {
+    curr_mode = LEARNING;
+  } else {
+    curr_mode = TESTING;
+  }
+
+  reset_keys();
+  CURRENT_STATE = update_fsm(sWAIT_FOR_MODE, millis(), num_keys, last_key, curr_mode);
+
+  light_led(NOTE_A5, 0, RED, 0);
+  light_led(NOTE_A5, 0, GREEN, 0);
+  light_led(NOTE_G5, 0, RED, 0);
+  light_led(NOTE_G5, 0, GREEN, 0);
+  light_led(NOTE_B5, 0, RED, 0);
+  light_led(NOTE_B5, 0, GREEN, 0);
+  
 }
 
 /*
@@ -160,21 +184,24 @@ void reset_keys() {
  * Display progression through song on the LCD
  */
 void display_curr_index(int curr_index, int total_notes) {
-  lcd.clear();
+  /*lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("On note: ");
   lcd.print(curr_index + 1);
   lcd.setCursor(0,1);
   lcd.print(" / ");
-  lcd.print(total_notes + 1);
+  lcd.print(total_notes + 1);*/
+
+  Serial1.write("On note: " + (curr_index + 1) + " / " + (total_notes + 1) + "*");
 }
 
 /*
  * Display message desired
  */
 void display_message(String message) {
-  lcd.clear();
-  lcd.print(message);
+  //lcd.clear();
+  Serial1.write(message + "*");
+  //lcd.print(message);
 }
 
 /*
@@ -268,6 +295,7 @@ void play_demo_note(int curr_note, int duration) {
 void play_note(int curr_note, int duration, int saved_clock) {
   // move duration calculation to its own helper if necessary
   Serial.println("play note"); 
+  Serial.println(curr_note);
   int offset = millis() - saved_clock; 
   int play_duration = duration - offset; 
   Serial.println(play_duration); 

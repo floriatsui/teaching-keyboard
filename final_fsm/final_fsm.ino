@@ -6,8 +6,8 @@ int num_correct_keys, saved_clock, countdown;
 
 // Global song constants
 int song_end = 17;
-int note_durations[] = {2500, 2500, 5000, 2500, 2500, 5000, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 2500, 2500, 5000};
-//int note_durations[] = {800, 800, 1600, 800, 800, 1600, 400, 400, 400, 400, 400, 400, 400, 400, 800, 800, 1600};
+//int note_durations[] = {2500, 2500, 5000, 2500, 2500, 5000, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 1250, 2500, 2500, 5000};
+int note_durations[] = {800, 800, 1600, 800, 800, 1600, 400, 400, 400, 400, 400, 400, 400, 400, 800, 800, 1600};
 
 
 int song_notes[] = {NOTE_B5, NOTE_A5, NOTE_G5, NOTE_B5, NOTE_A5, NOTE_G5, 
@@ -19,6 +19,7 @@ state CURRENT_STATE;
 void setup() {
   Serial.begin(9600);
   while (!Serial);
+  Serial1.begin(9600);
 
   initialize_system();
 
@@ -55,6 +56,8 @@ void setup() {
    pinMode(Bred, OUTPUT);
    
    toggleSwitch.setDebounceTime(50);
+
+   attachInterrupt(switchPin, update_mode, CHANGE);
   // TODO: add song parsing here
 
   //test_all_tests();
@@ -79,6 +82,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       if (mils - saved_clock >= 5000 && curr_mode == LEARNING) { // 1-2
         //display("LEARNING DEMO"); 
         Serial.println("LEARNING DEMO"); 
+        
         saved_clock = mils; 
         curr_song_index = 0; 
         next_state = sDEMO; 
@@ -99,7 +103,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
           light_led(song_notes[curr_song_index-1], note_durations[curr_song_index-1], GREEN, 0); 
         }
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 255); 
-        //play_demo_note(song_notes[curr_song_index], note_durations[curr_song_index]); 
+        play_demo_note(song_notes[curr_song_index], note_durations[curr_song_index]); 
         saved_clock = mils; 
         curr_song_index += 1; 
         next_state = sDEMO; 
@@ -171,6 +175,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         light_led(song_notes[curr_song_index - 1], note_durations[curr_song_index - 1], GREEN, 0); 
         countdown = 3; 
         saved_clock = mils; 
+        reset_keys();
         next_state = sWAIT_FOR_MODE; 
       } else {
         next_state = sWAIT_FOR_KEY_LEARNING; 
@@ -210,19 +215,19 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       Serial.println("WAIT FOR KEY TESTING"); 
       Serial.print("curr song index: "); 
       Serial.println(curr_song_index);
-      if(num_keys = 1 && curr_song_index < song_end && last_key == song_notes[curr_song_index]){ // 7-8(a)-- correct
+      if(num_keys == 1 && curr_song_index < song_end && last_key == song_notes[curr_song_index]){ // 7-8(a)-- correct
         play_note(last_key, note_durations[curr_song_index], saved_clock);
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 100);
         num_correct_keys++;
         next_state = sKEY_PRESSED_TESTING;
-      } else if (num_keys = 1 && curr_song_index < song_end && last_key != song_notes[curr_song_index]) { // 7-8(b)
+      } else if (num_keys == 1 && curr_song_index < song_end && last_key != song_notes[curr_song_index]) { // 7-8(b)
         play_note(last_key, note_durations[curr_song_index], saved_clock);
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], RED, 100);
         next_state = sKEY_PRESSED_TESTING;
-      } else if (num_keys = 0 && curr_song_index < song_end && mils - saved_clock >=note_durations[curr_song_index] / 2) { // 7-9
+      } else if (num_keys == 0 && curr_song_index < song_end && mils - saved_clock >=note_durations[curr_song_index] / 2) { // 7-9
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], RED, 100);
         next_state = sNO_KEY_PRESSED_TESTING;
-      } else if (curr_song_index = song_end) { // 7-10
+      } else if (curr_song_index == song_end) { // 7-10
         //display(num_correct_keys, song_end);
         Serial.println(String(num_correct_keys) + String(song_end));
         next_state = sGAME_OVER;
@@ -231,10 +236,11 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       }
       break;
     case sKEY_PRESSED_TESTING: // 8 
-      if (mils - saved_clock >= note_durations[curr_song_index]) {
+      if (mils - saved_clock >= note_durations[curr_song_index]) { // 8-7
         //display(curr_song_index + 1 + “/” + song_end + 1);
         Serial.println("going back to 7 from 8"); 
         light_led(song_notes[curr_song_index], note_durations[curr_song_index], RED, 0);
+        light_led(song_notes[curr_song_index], note_durations[curr_song_index], GREEN, 0);
         Serial.println(String(curr_song_index + 1) + String(song_end));
         reset_keys();
         curr_song_index += 1;
