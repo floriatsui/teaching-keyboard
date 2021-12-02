@@ -91,7 +91,8 @@ void test_calibration() {
       if (cap_reading > thresholds[i]) {
         lcd.setCursor(0,0);
         //lcd.print(labels[i]);
-        Serial1.write(labels[i] + "*");
+        Serial1.write("hello");
+        //Serial1.write(labels[i]);
       }
     }
     delay(50);
@@ -135,14 +136,14 @@ void set_mode() {
   int state = toggleSwitch.getState();
 
   if (state == HIGH){
-    Serial1.write("Testing Mode*");
+    //Serial1.write("Testing Mode*");
     // lcd.print("Testing mode!");
     curr_mode = TESTING;
     return;
   }
     
   else {
-    Serial.println("Learning Mode");
+    //Serial1.write("Learning Mode*");
     // lcd.print("Learning mode!");
     curr_mode = LEARNING;
     return;
@@ -152,12 +153,14 @@ void set_mode() {
 
 void update_mode() {
 
-  Serial.println("switching mode");
+  Serial1.write("switching modes!*");
 
   if (curr_mode == TESTING) {
+    Serial1.write("Learning Mode*");
     curr_mode = LEARNING;
   } else {
     curr_mode = TESTING;
+    Serial1.write("Testing Mode*");
   }
 
   reset_keys();
@@ -192,7 +195,11 @@ void display_curr_index(int curr_index, int total_notes) {
   lcd.print(" / ");
   lcd.print(total_notes + 1);*/
 
-  Serial1.write("On note: " + (curr_index + 1) + " / " + (total_notes + 1) + "*");
+  //"On note: " + (curr_index + 1) + " / " + (total_notes + 1));
+  String message = "On note: " + String(curr_index) + " / " + String((total_notes)) + "*";
+  char buf[256];
+  message.toCharArray(buf, 256);
+  Serial1.write(buf);
 }
 
 /*
@@ -200,7 +207,11 @@ void display_curr_index(int curr_index, int total_notes) {
  */
 void display_message(String message) {
   //lcd.clear();
-  Serial1.write(message + "*");
+  message += "*";
+  //Serial1.write(message + "*");
+  char buf[256];
+  message.toCharArray(buf, 256);
+  Serial1.write(buf);
   //lcd.print(message);
 }
 
