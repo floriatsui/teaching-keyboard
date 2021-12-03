@@ -5,9 +5,9 @@
  * Initialize LCD based on Lab 5 schematic
  */
 const int rs = 0, en = 1, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+//LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 //int switch_pin = 7;
-ezButton toggleSwitch(5);
+ezButton toggleSwitch(4);
 
 void setup() {
   // put your setup code here, to run once:
@@ -18,7 +18,15 @@ void setup() {
   //lcd.begin(16,2);
   //pinMode(switch_pin, INPUT);
   toggleSwitch.setDebounceTime(50);
+  attachInterrupt(4, update_mode, CHANGE);
   
+}
+
+void update_mode() {
+  noInterrupts();
+  Serial.println("got here");
+  delay(1000);
+  interrupts();
 }
 
 void loop() {

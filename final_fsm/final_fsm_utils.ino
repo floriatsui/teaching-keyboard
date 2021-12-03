@@ -13,7 +13,7 @@ void initialize_system() {
   last_key = -1;
   num_keys = 0;
   lcd.begin(16,2);
-  toggleSwitch.setDebounceTime(50);
+  toggleSwitch.setDebounceTime(200);
 }
 
 /*
@@ -152,18 +152,23 @@ void set_mode() {
 }
 
 void update_mode() {
-
+  noInterrupts(); 
   Serial1.write("switching modes!*");
+  Serial.println("switching modes!*");
 
   if (curr_mode == TESTING) {
     Serial1.write("Learning Mode*");
+    Serial.println("Learning Mode*");
     curr_mode = LEARNING;
   } else {
     curr_mode = TESTING;
     Serial1.write("Testing Mode*");
+    Serial.println("Testing Mode*");
   }
 
   reset_keys();
+  //CURRENT_STATE = sWAIT_FOR_MODE; 
+  //flag = 1; 
   CURRENT_STATE = update_fsm(sWAIT_FOR_MODE, millis(), num_keys, last_key, curr_mode);
 
   light_led(NOTE_A5, 0, RED, 0);
@@ -172,7 +177,8 @@ void update_mode() {
   light_led(NOTE_G5, 0, GREEN, 0);
   light_led(NOTE_B5, 0, RED, 0);
   light_led(NOTE_B5, 0, GREEN, 0);
-  
+  delay(10000);
+  interrupts();
 }
 
 /*
@@ -212,6 +218,7 @@ void display_message(String message) {
   char buf[256];
   message.toCharArray(buf, 256);
   Serial1.write(buf);
+  delay(1000);
   //lcd.print(message);
 }
 
@@ -303,16 +310,16 @@ void play_demo_note(int curr_note, int duration) {
 /*
  * Play the desired note for the specified duration
  */
-void play_note(int curr_note, int duration, int saved_clock) {
+void play_note(int curr_note, int duration, int start_of_note, int curr_time) {
   // move duration calculation to its own helper if necessary
   Serial.println("play note"); 
   Serial.println(curr_note);
-  int offset = millis() - saved_clock; 
+  int offset = curr_time - start_of_note; 
   int play_duration = duration - offset; 
   Serial.println(play_duration); 
   // first argument is the pin 
-  tone(12, curr_note, 1000);
-  delay(1000);
+  tone(12, curr_note, play_duration);
+  delay(play_duration);
   noTone(12); 
   Serial.println("end of play note"); 
 }

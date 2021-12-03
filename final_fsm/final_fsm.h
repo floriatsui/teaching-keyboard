@@ -61,6 +61,7 @@ typedef enum {
 mode curr_mode;
 int last_key;
 int num_keys;
+int flag;
 
 bool test_all_tests(); // TODO
 
