@@ -1,17 +1,19 @@
+// #include "final_fsm.h"
 /*
  * Initialize LCD based on Lab 5 schematic
  */
 const int rs = 0, en = 1, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
+
 /*
  * Initialize system: set up LCD
  */
 void initialize_system() {
-  last_key = (note) -1;
+  last_key = -1;
   num_keys = 0;
   lcd.begin(16,2);
-  toggleSwitch.setDebounceTime(50);
+  toggleSwitch.setDebounceTime(200);
 }
 
 /*
@@ -28,11 +30,11 @@ void calibrate() {
   while(true) {
     Serial.println("Capacitive sensing:");
     Serial.print("7:  ");
-    Serial.println(s7.capacitiveSensorRaw(10));
+    Serial.println(G.capacitiveSensorRaw(10));
     Serial.print("8:  ");
-    Serial.println(s8.capacitiveSensorRaw(10));
+    Serial.println(A.capacitiveSensorRaw(10));
     Serial.print("9:  ");
-    Serial.println(s9.capacitiveSensorRaw(10));
+    Serial.println(B.capacitiveSensorRaw(10));
     Serial.println();
     if (i == scroll_len) {
       i = 0;
@@ -64,9 +66,9 @@ void calibrate() {
 void test_calibration() {
   String labels[4];
   // A hack, because enum "orientation" defines values from 0 to 2
-  labels[G] = "G pressed";
-  labels[A] = "A pressed";
-  labels[B] = "B pressed";
+  labels[0] = "G pressed";
+  labels[1] = "A pressed";
+  labels[2] = "B pressed";
 
   while(true) {
     lcd.clear();
@@ -74,21 +76,23 @@ void test_calibration() {
     for(int i = 0; i < 3; i++) {
       int cap_reading;
       switch(cap_sensors[i]) {
-        case 7:
-          cap_reading = s7.capacitiveSensorRaw(10);
-          break;
         case 8:
-          cap_reading = s8.capacitiveSensorRaw(10);
+          cap_reading = G.capacitiveSensorRaw(10);
           break;
         case 9:
-          cap_reading = s9.capacitiveSensorRaw(10);
+          cap_reading = A.capacitiveSensorRaw(10);
+          break;
+        case 10:
+          cap_reading = B.capacitiveSensorRaw(10);
           break;
         default:
           break;        
       }
       if (cap_reading > thresholds[i]) {
         lcd.setCursor(0,0);
-        lcd.print(labels[i]);
+        //lcd.print(labels[i]);
+        Serial1.write("hello");
+        //Serial1.write(labels[i]);
       }
     }
     delay(50);
@@ -104,27 +108,21 @@ void update_inputs() {
   for(int i = 0; i < 3; i++) {
     int cap_reading;
     switch(cap_sensors[i]) {
-      case 7:
-        cap_reading = s7.capacitiveSensorRaw(10);
-        break;
       case 8:
-        cap_reading = s8.capacitiveSensorRaw(10);
+        cap_reading = G.capacitiveSensorRaw(10);
         break;
       case 9:
-        cap_reading = s9.capacitiveSensorRaw(10);
+        cap_reading = A.capacitiveSensorRaw(10);
+        break;
+      case 10:
+        cap_reading = B.capacitiveSensorRaw(10);
         break;
       default:
         break;        
     }
     if (cap_reading > thresholds[i]) {
-      if ((int) last_key != i) {
-        num_keys = 1;
-      } else {
-        num_keys = 0; 
-      }
-      last_key = (note) i;
-    } else {
-      num_keys = 0;
+      num_keys = 1;
+      last_key = keys[i];
     }
   }
 }
@@ -138,23 +136,56 @@ void set_mode() {
   int state = toggleSwitch.getState();
 
   if (state == HIGH){
-    Serial.println("Testing Mode");
+    //Serial1.write("Testing Mode*");
     // lcd.print("Testing mode!");
     curr_mode = TESTING;
+    return;
   }
     
   else {
-    Serial.println("Learning Mode");
+    //Serial1.write("Learning Mode*");
     // lcd.print("Learning mode!");
     curr_mode = LEARNING;
+    return;
   }
+  delay(100);
+}
+
+void update_mode() {
+  noInterrupts(); 
+  Serial1.write("switching modes!*");
+  Serial.println("switching modes!*");
+
+  if (curr_mode == TESTING) {
+    Serial1.write("Learning Mode*");
+    Serial.println("Learning Mode*");
+    curr_mode = LEARNING;
+  } else {
+    curr_mode = TESTING;
+    Serial1.write("Testing Mode*");
+    Serial.println("Testing Mode*");
+  }
+
+  reset_keys();
+  //CURRENT_STATE = sWAIT_FOR_MODE; 
+  //flag = 1; 
+  CURRENT_STATE = update_fsm(sWAIT_FOR_MODE, millis(), num_keys, last_key, curr_mode);
+
+  light_led(NOTE_A5, 0, RED, 0);
+  light_led(NOTE_A5, 0, GREEN, 0);
+  light_led(NOTE_G5, 0, RED, 0);
+  light_led(NOTE_G5, 0, GREEN, 0);
+  light_led(NOTE_B5, 0, RED, 0);
+  light_led(NOTE_B5, 0, GREEN, 0);
+  delay(10000);
+  interrupts();
 }
 
 /*
  * Reset num_keys to 0 and last_key to an undefined value
  */
 void reset_keys() {
-  last_key = (note) -1;
+  last_key = -1;
   num_keys = 0;
 }
 
@@ -162,54 +193,133 @@ void reset_keys() {
  * Display progression through song on the LCD
  */
 void display_curr_index(int curr_index, int total_notes) {
-  lcd.clear();
+  /*lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("On note: ");
   lcd.print(curr_index + 1);
   lcd.setCursor(0,1);
   lcd.print(" / ");
-  lcd.print(total_notes + 1);
+  lcd.print(total_notes + 1);*/
+
+  //"On note: " + (curr_index + 1) + " / " + (total_notes + 1));
+  String message = "On note: " + String(curr_index) + " / " + String((total_notes)) + "*";
+  char buf[256];
+  message.toCharArray(buf, 256);
+  Serial1.write(buf);
 }
 
 /*
  * Display message desired
  */
 void display_message(String message) {
-  lcd.clear();
-  lcd.print(message);
+  //lcd.clear();
+  message += "*";
+  //Serial1.write(message + "*");
+  char buf[256];
+  message.toCharArray(buf, 256);
+  Serial1.write(buf);
+  delay(1000);
+  //lcd.print(message);
 }
 
 /*
  * Light the desired LED with specified color, 
  * duration and frequency
  */
-void light_led(note curr_note, int duration, String color, int frequency) {
+void light_led(int curr_note, int duration, color c, int frequency) {
+
+  int thisNote;
   
+  if (curr_note == NOTE_G5){
+    if (c == GREEN){
+      thisNote = Ggreen;
+    } else {
+      thisNote = Gred;
+    }
+  } else if (curr_note == NOTE_A5){
+    if (c == GREEN){
+      thisNote = Agreen;
+    } else {
+      thisNote = Ared;
+    }
+  } else {
+    if (c == GREEN){
+      thisNote = Bgreen;
+    } else {
+      thisNote = Bred;
+    }
+  }
+  Serial.println(thisNote); 
+  analogWrite(thisNote, frequency);
 }
 
 /*
  * Dim the desired LED over the duration specified
  */
-void dim_led(note curr_note, int duration, String color) {
+void dim_led(int curr_note, int duration, color c) {
+  // note -- will be one of G, A, or B
+  // duration -- milliseconds
+  // color-- "GREEN" or "RED"
+
+  // PWM is 0 to 255, we want to dim over the duration of the note
+  int pwm = 255;
+  int deltaPWM = 255/10;
+  int delayTime = duration / 10;
+  int thisNote;
+  
+  if (curr_note == NOTE_G5){
+    if (c == GREEN){
+      thisNote = Ggreen;
+    } else {
+      thisNote = Gred;
+    }
+  } else if (curr_note == NOTE_A5){
+    if (c == GREEN){
+      thisNote = Agreen;
+    } else {
+      thisNote = Ared;
+    }
+  } else {
+    if (c == GREEN){
+      thisNote = Bgreen;
+    } else {
+      thisNote = Bred;
+    }
+  }
+
+  while (pwm >= 0){
+    analogWrite(thisNote, pwm);
+    delay(delayTime);
+    pwm -= deltaPWM;
+  }
+
   
 }
 
 
-void play_demo_note(note curr_note, int duration) {
+void play_demo_note(int curr_note, int duration) {
   // move duration calculation to its own helper if necessary
   Serial.println("play demo note"); 
   // first argument is the pin 
-  tone(4, curr_note, duration);
+  Serial.println(duration);
+  tone(12, curr_note, duration);
+  delay(duration); 
+  noTone(12); 
 }
 
 /*
  * Play the desired note for the specified duration
  */
-void play_note(note curr_note, int duration, int saved_clock) {
+void play_note(int curr_note, int duration, int start_of_note, int curr_time) {
   // move duration calculation to its own helper if necessary
   Serial.println("play note"); 
-  int offset = millis() - saved_clock; 
+  Serial.println(curr_note);
+  int offset = curr_time - start_of_note; 
   int play_duration = duration - offset; 
+  Serial.println(play_duration); 
   // first argument is the pin 
-  tone(4, curr_note, play_duration);
+  tone(12, curr_note, play_duration);
+  delay(play_duration);
+  noTone(12); 
+  Serial.println("end of play note"); 
 }
