@@ -131,6 +131,8 @@ void update_inputs() {
  * Read in mode switch input and set the current mode accordingly
  */
 void set_mode() {
+
+  //noInterrupts();
   toggleSwitch.loop();
   
   int state = toggleSwitch.getState();
@@ -149,6 +151,7 @@ void set_mode() {
     return;
   }
   delay(100);
+  //interrupts();
 }
 
 void update_mode() {
@@ -171,12 +174,12 @@ void update_mode() {
   //flag = 1; 
   CURRENT_STATE = update_fsm(sWAIT_FOR_MODE, millis(), num_keys, last_key, curr_mode);
 
-  light_led(NOTE_A5, 0, RED, 0);
-  light_led(NOTE_A5, 0, GREEN, 0);
-  light_led(NOTE_G5, 0, RED, 0);
-  light_led(NOTE_G5, 0, GREEN, 0);
-  light_led(NOTE_B5, 0, RED, 0);
-  light_led(NOTE_B5, 0, GREEN, 0);
+  light_led(NOTE_A5, RED, 0);
+  light_led(NOTE_A5, GREEN, 0);
+  light_led(NOTE_G5, RED, 0);
+  light_led(NOTE_G5, GREEN, 0);
+  light_led(NOTE_B5, RED, 0);
+  light_led(NOTE_B5, GREEN, 0);
   delay(10000);
   interrupts();
 }
@@ -226,7 +229,7 @@ void display_message(String message) {
  * Light the desired LED with specified color, 
  * duration and frequency
  */
-void light_led(int curr_note, int duration, color c, int frequency) {
+void light_led(int curr_note, color c, int frequency) {
 
   int thisNote;
   
@@ -251,49 +254,6 @@ void light_led(int curr_note, int duration, color c, int frequency) {
   }
   Serial.println(thisNote); 
   analogWrite(thisNote, frequency);
-}
-
-/*
- * Dim the desired LED over the duration specified
- */
-void dim_led(int curr_note, int duration, color c) {
-  // note -- will be one of G, A, or B
-  // duration -- milliseconds
-  // color-- "GREEN" or "RED"
-
-  // PWM is 0 to 255, we want to dim over the duration of the note
-  int pwm = 255;
-  int deltaPWM = 255/10;
-  int delayTime = duration / 10;
-  int thisNote;
-  
-  if (curr_note == NOTE_G5){
-    if (c == GREEN){
-      thisNote = Ggreen;
-    } else {
-      thisNote = Gred;
-    }
-  } else if (curr_note == NOTE_A5){
-    if (c == GREEN){
-      thisNote = Agreen;
-    } else {
-      thisNote = Ared;
-    }
-  } else {
-    if (c == GREEN){
-      thisNote = Bgreen;
-    } else {
-      thisNote = Bred;
-    }
-  }
-
-  while (pwm >= 0){
-    analogWrite(thisNote, pwm);
-    delay(delayTime);
-    pwm -= deltaPWM;
-  }
-
-  
 }
 
 
@@ -322,4 +282,15 @@ void play_note(int curr_note, int duration, int start_of_note, int curr_time) {
   delay(play_duration);
   noTone(12); 
   Serial.println("end of play note"); 
+
+  //testing watchdog
+  //delay(20000);
+}
+
+void WDT_Handler() {
+  // Clear interrupt register flag
+  WDT->INTFLAG.reg = 1;
+  
+  // Warn user that a watchdog reset may happen
+  Serial.println("reset may happen");
 }

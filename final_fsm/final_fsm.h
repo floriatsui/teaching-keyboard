@@ -89,8 +89,8 @@ void set_mode();
 void reset_keys();
 void display_curr_index(int curr_index, int total_notes);
 void display_message(String message);
-void light_led(int curr_note, int duration, color c, int frequency); // TODO
-void dim_led(int curr_note, int duration, color c); // TODO
-void play_note(int curr_note, int duration, int saved_clock); // TODO
+void light_led(int curr_note, color c, int frequency);
+void dim_led(int curr_note, int duration, color c); 
+void play_note(int curr_note, int duration, int saved_clock); 
 
 state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode curr_mode);
