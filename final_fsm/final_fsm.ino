@@ -275,14 +275,14 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       Serial.println(curr_song_index);
       
       if(num_keys == 1 && curr_song_index <= (song_end -1) && last_key == song_notes[curr_song_index]
-          &&  (mils - saved_clock) < note_durations[curr_song_index]){ // 7-8(a)-- correct
+          &&  (mils - saved_clock) < note_durations[curr_song_index] / 2){ // 7-8(a)-- correct
         WDT->CLEAR.reg = 0xA5;
         light_led(song_notes[curr_song_index], GREEN, 255);
         play_note(last_key, note_durations[curr_song_index], saved_clock, mils);
         num_correct_keys++;
         next_state = sKEY_PRESSED_TESTING;
       } else if (num_keys == 1 && curr_song_index <= (song_end -1) && last_key != song_notes[curr_song_index]
-                  && (mils - saved_clock) < note_durations[curr_song_index]) { // 7-8(b)
+                  && (mils - saved_clock) < note_durations[curr_song_index] / 2) { // 7-8(b)
         WDT->CLEAR.reg = 0xA5;
         light_led(song_notes[curr_song_index], RED, 255);
         play_note(last_key, note_durations[curr_song_index], saved_clock, mils);
