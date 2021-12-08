@@ -81,7 +81,11 @@ void setup() {
 
   //attachInterrupt(switchPin, update_mode, CHANGE);
 
-  //test_all_tests();
+  if (test_all_tests()){
+    Serial.println("All tests passed");
+  } else {
+    Serial.println("At least 1 test failed");
+  }
 }
 
 void loop() {

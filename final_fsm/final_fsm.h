@@ -55,6 +55,25 @@ typedef enum {
   RED = 1, 
 } color; 
 
+typedef struct {
+  mode curr_mode;
+  int num_keys;
+  int last_key;
+  long mils;
+} state_inputs;
+
+
+///*
+// * A struct to keep all 9 state variables in one place
+// */
+
+typedef struct {
+    int saved_clock;
+    int curr_song_index;
+    int countdown;
+    int num_correct_keys;
+} state_vars;
+
 /*
  * Variables to keep track of inputs
  */
@@ -63,7 +82,7 @@ int last_key;
 int num_keys;
 int flag;
 
-bool test_all_tests(); // TODO
+bool test_all_tests(); 
 
 /*
  * Setup functions
@@ -71,7 +90,6 @@ bool test_all_tests(); // TODO
 void initialize_system();
 void calibrate();
 void test_calibration();
-void parse_song(); // TODO
 
 /*
  * Read in keyboard inputs and update corresponding variables
@@ -90,7 +108,6 @@ void reset_keys();
 void display_curr_index(int curr_index, int total_notes);
 void display_message(String message);
 void light_led(int curr_note, color c, int frequency);
-void dim_led(int curr_note, int duration, color c); 
 void play_note(int curr_note, int duration, int saved_clock); 
 
 state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode curr_mode);
