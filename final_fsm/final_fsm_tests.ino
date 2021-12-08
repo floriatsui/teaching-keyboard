@@ -142,7 +142,28 @@ bool test_all_tests() {
 
 
 //TESTING tests
-//test_transition(test_states_in[i], test_states_out[i], test_input[i], display_fns[i], test_in_vars[i], test_out_vars[i], true)
+//test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], true)
+
+// 7-8(a) transition
+bool test_78a = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_B5, 1000}, {0, 0, -1, 0}, {1000, 0, -1, 1}, true);
+
+// 7-8(b) transition
+bool test_78b = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 1000}, {0, 0, -1, 0}, {1000, 0, -1, 0}, true);
+
+// 7-9 transition
+bool test_79 = test_transition(sWAIT_FOR_KEY_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 7-10 transition
+bool test_710 = test_transition(sWAIT_FOR_KEY_TESTING, sGAME_OVER, {TESTING, 0, NOTE_G5, 2000}, {0, 17, -1, 0}, {0, 0, -1, 0}, true);
+
+// 7-7 no transition
+bool test_77 = test_transition(sWAIT_FOR_KEY_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 8-7 transition
+bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 1, NOTE_G5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
+
+// 8-8 no transition
+bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
 //const state test_states_in[24] = {(state) 1, (state) 1, (state) 1, (state) 1, (state) 2, (state) 2, (state) 2, (state) 3, (state) 3, (state) 4, (state) 4, (state) 4, (state) 5, (state) 5, (state) 5, (state) 6, (state) 6, (state) 6, (state) 7, (state) 1, (state) 1, (state) 4, (state) 5, (state) 6};
 //const state test_states_out[24] = {(state) 1, (state) 1, (state) 2, (state) 6, (state) 2, (state) 3, (state) 3, (state) 4, (state) 7, (state) 4, (state) 5, (state) 5, (state) 2, (state) 6, (state) 7, (state) 6, (state) 1, (state) 7, (state) 7, (state) 2, (state) 6, (state) 5, (state) 2, (state) 7};
