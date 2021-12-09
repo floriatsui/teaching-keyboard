@@ -126,20 +126,46 @@ bool test_transition(state start_state,
 //LEARNING tests
 //test_transition(test_states_in[i], test_states_out[i], test_input[i], display_fns[i], test_in_vars[i], test_out_vars[i], true)
 
-// 3-3 transition
 bool test_all_tests() {
-  return test_transition(sLEARNING_COUNTDOWN, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 6000}, {4800, 0, 2, 0}, {6000, 0, 1, 0}, true);
+ 
+  bool one = test_transition(sLEARNING_COUNTDOWN, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 6000}, {4800, 0, 2, 0}, {6000, 0, 1, 0}, false); // 3-3
+  bool two = test_transition(sLEARNING_COUNTDOWN, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 6000}, {4800, 0, -1, 0}, {6000, 0, -1, 0}, true); // 3-4
+  bool three = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_MODE, {LEARNING, 2, 2, 6000}, {4800, 17, -1, 0}, {6000, 17, 3, 0}, false);  // 4-1
+  bool four = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 9000}, {3800, 5, -1, 0}, {9000, 6, -1, 0}, false); // 4-4
+  bool five = test_transition(sWAIT_FOR_KEY_LEARNING, sKEY_PRESSED_LEARNING, {LEARNING, 1, NOTE_A5, 6000}, {5000, 1, -1, 0}, {5000, 1, -1, 0}, true); // 4-5
+
+  if (!one){
+    Serial.println("test one failed");
+  } if (!two){
+    Serial.println("test two failed");
+  } if (!three){
+    Serial.println("test three failed");
+  } if (!four){
+    Serial.println("test four failed");
+  } if (!five){
+    Serial.println("test five failed");
+  }
+  
+  return one and two and three and four and five;
+
+  // 1, 2
+  // 1 no transition
+  // normal, learning
+  bool one = test_transition(sWAIT_FOR_MODE, sWAIT_FOR_MODE, {LEARNING, 0, -1, 1000}, {0000, 0, 0, 0}, {0000, 0, 0, 0}, false);
+  // 1-2
+  bool onetwo = test_transition(sWAIT_FOR_MODE, sDEMO, {LEARNING, 0, -1, 11000}, {0000, 0, 0, 0}, {11010, 0, 0, 0}, false);
+  // 1-6
+  bool onesix = test_transition(sWAIT_FOR_MODE, sTESTING_COUNTDOWN, {TESTING, 0, -1, 11000}, {0000, 0, 0, 0}, {11010, 0, 0, 0}, false);
+
+    int song_end = 17;
+    // 2 none
+  bool two = test_transition(sDEMO, sDEMO, {LEARNING, 0, -1, 11020}, {11010, 0, 0, 0}, {11010, 0, 0, 0}, false);
+    // 2-2
+  bool twotwo = test_transition(sDEMO, sDEMO, {LEARNING, 0, -1, 12000}, {11010, 0, 0, 0}, {12010, 1, 0, 0}, false);
+    // 2-3
+  bool twothree = test_transition(sDEMO, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 20000}, {19010, song_end, 0, 0}, {20010, 0, 3, 0}, false);
 
 }
-
-// 3-4 transition
-
-// 4-1 transition
-
-// 4-4 transition
-
-// 4-5 transiton
-
 
 //TESTING tests
 //test_transition(test_states_in[i], test_states_out[i], test_input[i], display_fns[i], test_in_vars[i], test_out_vars[i], true)

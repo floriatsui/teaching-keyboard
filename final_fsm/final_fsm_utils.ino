@@ -170,8 +170,7 @@ void update_mode() {
   }
 
   reset_keys();
-  //CURRENT_STATE = sWAIT_FOR_MODE; 
-  //flag = 1; 
+  
   CURRENT_STATE = update_fsm(sWAIT_FOR_MODE, millis(), num_keys, last_key, curr_mode);
 
   light_led(NOTE_A5, RED, 0);

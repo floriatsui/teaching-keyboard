@@ -128,7 +128,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         curr_song_index = 0; 
         next_state = sTESTING_COUNTDOWN; 
       } else {
-        //WDT->CLEAR.reg = 0xA5;
         next_state = sWAIT_FOR_MODE; 
       }
       break;
@@ -169,11 +168,10 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         //delay(500); 
       } else if (countdown <= 0 && mils - saved_clock >= 1000) { // 3-4
         WDT->CLEAR.reg = 0xA5;
-        //display("BEGIN PLAYING"); 
         Serial.println("BEGIN PLAYING"); 
         light_led(song_notes[curr_song_index], GREEN, 255); 
         display_curr_index(1, song_end);
-        countdown = 3; 
+        //countdown = 3; 
         saved_clock = mils;
         reset_keys(); 
         next_state = sWAIT_FOR_KEY_LEARNING; 
@@ -217,7 +215,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       } else if (curr_song_index == song_end && (mils - saved_clock) >= note_durations[curr_song_index]) { // 4-1 
         WDT->CLEAR.reg = 0xA5;
         Serial.println("taking transition 4 back to 1");
-        //display("LEARNING MODE OVER"); 
         Serial.println("LEARNING MODE OVER");
         display_message("LEARNING DONE");
         analogWrite(Ggreen, 0);
@@ -235,7 +232,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         WDT->CLEAR.reg = 0xA5;
         Serial.println("taking transition 5 back to 4");
         light_led(song_notes[curr_song_index], GREEN, 0); 
-        //display(String(curr_song_index + 1) + "/" + String(song_end)); 
         if (curr_song_index != (song_end - 1)) {
           light_led(song_notes[curr_song_index+1], GREEN, 255); 
           display_curr_index(curr_song_index+2, song_end);
@@ -259,7 +255,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         next_state = sTESTING_COUNTDOWN;
       } else if (countdown <= 0 && mils - saved_clock >= 1000) { // 6-7
         WDT->CLEAR.reg = 0xA5;
-        //display(countdown);
         Serial.println(countdown);
         display_curr_index(1, song_end);
         reset_keys(); 
@@ -293,9 +288,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         next_state = sNO_KEY_PRESSED_TESTING;
       } else if (curr_song_index == song_end) { // 7-10
         WDT->CLEAR.reg = 0xA5;
-        //display(num_correct_keys, song_end);
         display_message("Score: " + String(num_correct_keys) + "/" + String(song_end));
-        //display_message("hello");
         next_state = sGAME_OVER;
       } else {
         next_state = sWAIT_FOR_KEY_TESTING;
@@ -304,7 +297,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
     case sKEY_PRESSED_TESTING: // 8 
       if (mils - saved_clock >= note_durations[curr_song_index]) { // 8-7
         WDT->CLEAR.reg = 0xA5;
-        //display(curr_song_index + 1 + “/” + song_end + 1);
         Serial.println("going back to 7 from 8"); 
         light_led(song_notes[curr_song_index], RED, 0);
         light_led(song_notes[curr_song_index], GREEN, 0);
