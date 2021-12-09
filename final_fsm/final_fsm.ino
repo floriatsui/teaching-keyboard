@@ -90,9 +90,9 @@ void setup() {
 
 void loop() {
 
-  /*update_inputs();
+  update_inputs();
   CURRENT_STATE = update_fsm(CURRENT_STATE, millis(), num_keys, last_key, curr_mode);
-  delay(100);*/
+  delay(100);
   
 }
 
@@ -115,9 +115,10 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         display_message("STARTING DEMO");
         saved_clock = mils; 
         curr_song_index = 0; 
+        countdown = 3;
         next_state = sDEMO; 
       } else if (mils - saved_clock >= 10000 && curr_mode == TESTING) { // 1-6
-      
+        countdown = 3;
         WDT->CLEAR.reg = 0xA5;
         display_message("START TESTING"); 
         Serial.println("BEGIN TESTING MODE"); 
@@ -214,7 +215,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         display_message("LEARNING DONE");
         analogWrite(Ggreen, 0);
         light_led(song_notes[curr_song_index - 1], GREEN, 0); 
-        countdown = 3; 
         saved_clock = mils; 
         reset_keys();
         next_state = sWAIT_FOR_MODE; 
@@ -251,9 +251,9 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       } else if (countdown <= 0 && mils - saved_clock >= 1000) { // 6-7
         WDT->CLEAR.reg = 0xA5;
         Serial.println(countdown);
+        saved_clock = mils;
         display_curr_index(1, song_end);
         reset_keys(); 
-        countdown = 3;
         next_state = sWAIT_FOR_KEY_TESTING;
       } else {
         next_state = sTESTING_COUNTDOWN;
@@ -329,7 +329,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         WDT->CLEAR.reg = 0xA5;
         display_message("TESTING OVER");
         Serial.println("TESTING MODE OVER");
-        countdown = 3;
         saved_clock = mils;
         num_correct_keys = 0;
         next_state = sWAIT_FOR_MODE;

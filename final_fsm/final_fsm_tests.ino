@@ -99,11 +99,20 @@ bool test_transition(state start_state,
                       num_correct_keys == end_state_vars.num_correct_keys);
 
   if (! verbos) {
+
+    if (!passed_test){
+      Serial.println("start state:" + String(start_state) + ", end state: " + String(end_state));
+    }
+    
     return passed_test;
   }
   else {
     // something like this
     // for debugging purposes
+   
+    if (!passed_test){
+    Serial.println("------TEST OUTPUT-----");   
+    Serial.println("start state:" + String(start_state) + ", end state: " + String(end_state));
     Serial.println(end_state);
     Serial.println(result_state);
     Serial.println(countdown);
@@ -114,7 +123,9 @@ bool test_transition(state start_state,
     Serial.println(end_state_vars.num_correct_keys);
     Serial.println(saved_clock);
     Serial.println(end_state_vars.saved_clock);
-    Serial.println("start state:" + String(start_state) + ", end state: " + String(end_state));
+    Serial.println("------END TEST OUTPUT-----");
+    }
+
     return passed_test;
   }
  }
@@ -129,42 +140,41 @@ bool test_transition(state start_state,
 bool test_all_tests() {
  
   bool three = test_transition(sLEARNING_COUNTDOWN, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 6000}, {4800, 0, 2, 0}, {6000, 0, 1, 0}, false); // 3-3
-  bool threefour = test_transition(sLEARNING_COUNTDOWN, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 6000}, {4800, 0, -1, 0}, {6000, 0, -1, 0}, true); // 3-4
-  bool fourone = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_MODE, {LEARNING, 2, 2, 6000}, {4800, 17, -1, 0}, {6000, 17, 3, 0}, false);  // 4-1
+  bool threefour = test_transition(sLEARNING_COUNTDOWN, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 6000}, {4800, 0, -1, 0}, {6000, 0, -1, 0}, false); // 3-4
+  bool fourone = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_MODE, {LEARNING, 2, 2, 6000}, {4800, 17, -1, 0}, {6000, 17, -1, 0}, false);  // 4-1
   bool fourfour = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 9000}, {3800, 5, -1, 0}, {9000, 6, -1, 0}, false); // 4-4
-  bool fourfive = test_transition(sWAIT_FOR_KEY_LEARNING, sKEY_PRESSED_LEARNING, {LEARNING, 1, NOTE_A5, 6000}, {5000, 1, -1, 0}, {5000, 1, -1, 0}, true); // 4-5
+  bool fourfive = test_transition(sWAIT_FOR_KEY_LEARNING, sKEY_PRESSED_LEARNING, {LEARNING, 1, NOTE_A5, 6000}, {5000, 1, -1, 0}, {5000, 1, -1, 0}, false); // 4-5
 
   bool batch_one = three and threefour and fourone and fourfour and fourfive;
 
   // 1, 2
   // 1 no transition
   // normal, learning
-  bool one = test_transition(sWAIT_FOR_MODE, sWAIT_FOR_MODE, {LEARNING, 0, -1, 1000}, {0000, 0, 0, 0}, {0000, 0, 0, 0}, false);
+  bool one = test_transition(sWAIT_FOR_MODE, sWAIT_FOR_MODE, {LEARNING, 0, -1, 1000}, {0000, 0, 0, 0}, {0000, 0, 0, 0}, true);
   // 1-2
-  bool onetwo = test_transition(sWAIT_FOR_MODE, sDEMO, {LEARNING, 0, -1, 11000}, {0000, 0, 0, 0}, {11010, 0, 0, 0}, false);
+  bool onetwo = test_transition(sWAIT_FOR_MODE, sDEMO, {LEARNING, 0, -1, 11000}, {0000, 0, 0, 0}, {11000, 0, 3, 0}, true);
   // 1-6
-  bool onesix = test_transition(sWAIT_FOR_MODE, sTESTING_COUNTDOWN, {TESTING, 0, -1, 11000}, {0000, 0, 0, 0}, {11010, 0, 0, 0}, false);
+  bool onesix = test_transition(sWAIT_FOR_MODE, sTESTING_COUNTDOWN, {TESTING, 0, -1, 11000}, {0000, 0, 0, 0}, {11000, 0, 3, 0}, true);
 
     int song_end = 17;
-    // 2 none
-  bool two = test_transition(sDEMO, sDEMO, {LEARNING, 0, -1, 11020}, {11010, 0, 0, 0}, {11010, 0, 0, 0}, false);
+  
     // 2-2
-  bool twotwo = test_transition(sDEMO, sDEMO, {LEARNING, 0, -1, 12000}, {11010, 0, 0, 0}, {12010, 1, 0, 0}, false);
+  bool twotwo = test_transition(sDEMO, sDEMO, {LEARNING, 0, -1, 12000}, {11010, 0, 0, 0}, {12000, 1, 0, 0}, true);
     // 2-3
-  bool twothree = test_transition(sDEMO, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 20000}, {19010, song_end, 0, 0}, {20010, 0, 3, 0}, false);
+  bool twothree = test_transition(sDEMO, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 20000}, {19010, song_end, 0, 0}, {20000, 0, 3, 0}, true);
 
-  bool batch_two = one and onetwo and onesix and two and twotwo and twothree;
+  bool batch_two = one and onetwo and onesix and twotwo and twothree;
 
 // STATES 5-6 tests 
 // transition from 5-4 
-bool test_54 = test_transition((state) 5, (state) 4, {LEARNING, 1, NOTE_A5, 4000}, {1500, 1, 3, 0}, {4000, 2, 3, 0}, true); 
+bool test_54 = test_transition((state) 5, (state) 4, {LEARNING, 1, NOTE_A5, 4000}, {1500, 1, 3, 0}, {4000, 2, 3, 0}, false); 
 // no state change from 5 
-bool test_55 = test_transition((state) 5, (state) 5, {LEARNING, 1, NOTE_B5, 3000}, {1500, 2, 3, 0}, {1500, 2, 3, 0}, true); 
+bool test_55 = test_transition((state) 5, (state) 5, {LEARNING, 1, NOTE_B5, 3000}, {1500, 2, 3, 0}, {1500, 2, 3, 0}, false); 
 
 // transition from 6-6 
-bool test_66_self = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {1000, 0, 3, 0}, {2000, 0, 2, 0}, true); 
+bool test_66_self = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {1000, 0, 3, 0}, {2100, 0, 2, 0}, true); 
 // transition from 6-7
-bool test_67 = test_transition((state) 6, (state) 7, {TESTING, 0, -1, 3000}, {2000, 0, 0, 0}, {3000, 0, 3, 0}, true); 
+bool test_67 = test_transition((state) 6, (state) 7, {TESTING, 0, -1, 3000}, {2000, 0, 0, 0}, {3000, 0, 0, 0}, true); 
 // no state change from 6 
 bool test_66 = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {2000, 0, 1, 0}, {2000, 0, 1, 0}, true); 
 
@@ -173,39 +183,39 @@ bool test_66 = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {20
 
 
 // 7-8(a) transition
-bool test_78a = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 1}, true);
+bool test_78a = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 1}, false);
 
 // 7-8(b) transition
-bool test_78b = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_78b = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, false);
 
 // 7-9 transition
-bool test_79 = test_transition(sWAIT_FOR_KEY_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_79 = test_transition(sWAIT_FOR_KEY_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_G5, 3000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
 // 7-10 transition
-bool test_710 = test_transition(sWAIT_FOR_KEY_TESTING, sGAME_OVER, {TESTING, 0, NOTE_G5, 2000}, {0, 17, -1, 0}, {0, 0, -1, 0}, true);
+bool test_710 = test_transition(sWAIT_FOR_KEY_TESTING, sGAME_OVER, {TESTING, 0, NOTE_G5, 6000}, {0, 17, -1, 0}, {0, 17, -1, 0}, false);
 
 // 7-7 no transition
-bool test_77 = test_transition(sWAIT_FOR_KEY_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_77 = test_transition(sWAIT_FOR_KEY_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, false);
 
 // 8-7 transition
-bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 1, NOTE_G5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
+bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 1, NOTE_G5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, false);
 
 // 8-8 no transition
-bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, false);
 
   bool batch_four = test_78a and test_78b and test_79 and test_710 and test_77 and test_87 and test_88;
 
 // 9-7 transition
-bool test_97 = test_transition(sNO_KEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
+bool test_97 = test_transition(sNO_KEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, false);
 
 // 9-9 no transition
-bool test_99 = test_transition(sNO_KEY_PRESSED_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_99 = test_transition(sNO_KEY_PRESSED_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, false);
 
 // 10-1 transition
-bool test_101 = test_transition(sGAME_OVER, sWAIT_FOR_MODE, {TESTING, 0, NOTE_G5, 10000}, {0, 17, -1, 10}, {10000, 17, 3, 0}, true);
+bool test_101 = test_transition(sGAME_OVER, sWAIT_FOR_MODE, {TESTING, 0, NOTE_G5, 10000}, {0, 17, -1, 10}, {10000, 17, -1, 0}, false);
 
 // 10-10 no transition
-bool test_1010 = test_transition(sGAME_OVER, sGAME_OVER, {TESTING, 0, NOTE_G5, 5000}, {0, 17, -1, 10}, {0, 17, -1, 10}, true);
+bool test_1010 = test_transition(sGAME_OVER, sGAME_OVER, {TESTING, 0, NOTE_G5, 5000}, {0, 17, -1, 10}, {0, 17, -1, 10}, false);
 
   bool batch_five = test_97 and test_99 and test_101 and test_1010;
 
