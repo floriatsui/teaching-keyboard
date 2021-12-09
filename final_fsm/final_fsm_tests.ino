@@ -168,7 +168,53 @@ bool test_all_tests() {
 }
 
 //TESTING tests
-//test_transition(test_states_in[i], test_states_out[i], test_input[i], display_fns[i], test_in_vars[i], test_out_vars[i], true)
+//test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], true)
+
+// test_transition inputs: start state, end state, inputs, start var, end var, verbos 
+// INPUT 
+// curr_mode, num_keys, last_key, long mils;
+// VAR 
+// saved_clock, curr_song_index, countdown, num_correct_keys
+
+// STATES 5-6 tests 
+// transition from 5-4 
+bool test_54 = test_transition(5, 4, {LEARNING, 1, NOTE_A5, 4000}, 
+                {1500, 1, 3, 0}, {4000, 2, 3, 0}, true); 
+// no state change from 5 
+bool test_55 = transition(5, 5, {LEARNING, 1, NOTE_B5, 3000}, 
+                {1500, 2, 3, 0}, {1500, 2, 3, 0}, true); 
+
+// transition from 6-6 
+bool test_66_self = test_transition(6, 6, {TESTING, 0, -1, 2100}, 
+                {1000, 0, 3, 0}, {2000, 0, 2, 0}, true); 
+// transition from 6-7
+bool test_67 = test_transition(6, 7, {TESTING, 0, -1, 3000}, 
+                {2000, 0, 0, 0}, {3000, 0, 3, 0}, true); 
+// no state change from 6 
+bool test_66 = test_transition(6, 6, {TESTING, 0, -1 2100}, 
+                {2000, 0, 1, 0}, {2000, 0, 1, 0}, true); 
+
+
+// 7-8(a) transition
+bool test_78a = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 1}, true);
+
+// 7-8(b) transition
+bool test_78b = test_transition(sWAIT_FOR_KEY_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 7-9 transition
+bool test_79 = test_transition(sWAIT_FOR_KEY_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_G5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 7-10 transition
+bool test_710 = test_transition(sWAIT_FOR_KEY_TESTING, sGAME_OVER, {TESTING, 0, NOTE_G5, 2000}, {0, 17, -1, 0}, {0, 0, -1, 0}, true);
+
+// 7-7 no transition
+bool test_77 = test_transition(sWAIT_FOR_KEY_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 8-7 transition
+bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 1, NOTE_G5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
+
+// 8-8 no transition
+bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
 //const state test_states_in[24] = {(state) 1, (state) 1, (state) 1, (state) 1, (state) 2, (state) 2, (state) 2, (state) 3, (state) 3, (state) 4, (state) 4, (state) 4, (state) 5, (state) 5, (state) 5, (state) 6, (state) 6, (state) 6, (state) 7, (state) 1, (state) 1, (state) 4, (state) 5, (state) 6};
 //const state test_states_out[24] = {(state) 1, (state) 1, (state) 2, (state) 6, (state) 2, (state) 3, (state) 3, (state) 4, (state) 7, (state) 4, (state) 5, (state) 5, (state) 2, (state) 6, (state) 7, (state) 6, (state) 1, (state) 7, (state) 7, (state) 2, (state) 6, (state) 5, (state) 2, (state) 7};
