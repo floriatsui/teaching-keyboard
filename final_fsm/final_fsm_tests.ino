@@ -128,25 +128,13 @@ bool test_transition(state start_state,
 
 bool test_all_tests() {
  
-  bool one = test_transition(sLEARNING_COUNTDOWN, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 6000}, {4800, 0, 2, 0}, {6000, 0, 1, 0}, false); // 3-3
-  bool two = test_transition(sLEARNING_COUNTDOWN, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 6000}, {4800, 0, -1, 0}, {6000, 0, -1, 0}, true); // 3-4
-  bool three = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_MODE, {LEARNING, 2, 2, 6000}, {4800, 17, -1, 0}, {6000, 17, 3, 0}, false);  // 4-1
-  bool four = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 9000}, {3800, 5, -1, 0}, {9000, 6, -1, 0}, false); // 4-4
-  bool five = test_transition(sWAIT_FOR_KEY_LEARNING, sKEY_PRESSED_LEARNING, {LEARNING, 1, NOTE_A5, 6000}, {5000, 1, -1, 0}, {5000, 1, -1, 0}, true); // 4-5
+  bool three = test_transition(sLEARNING_COUNTDOWN, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 6000}, {4800, 0, 2, 0}, {6000, 0, 1, 0}, false); // 3-3
+  bool threefour = test_transition(sLEARNING_COUNTDOWN, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 6000}, {4800, 0, -1, 0}, {6000, 0, -1, 0}, true); // 3-4
+  bool fourone = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_MODE, {LEARNING, 2, 2, 6000}, {4800, 17, -1, 0}, {6000, 17, 3, 0}, false);  // 4-1
+  bool fourfour = test_transition(sWAIT_FOR_KEY_LEARNING, sWAIT_FOR_KEY_LEARNING, {LEARNING, 0, -1, 9000}, {3800, 5, -1, 0}, {9000, 6, -1, 0}, false); // 4-4
+  bool fourfive = test_transition(sWAIT_FOR_KEY_LEARNING, sKEY_PRESSED_LEARNING, {LEARNING, 1, NOTE_A5, 6000}, {5000, 1, -1, 0}, {5000, 1, -1, 0}, true); // 4-5
 
-  if (!one){
-    Serial.println("test one failed");
-  } if (!two){
-    Serial.println("test two failed");
-  } if (!three){
-    Serial.println("test three failed");
-  } if (!four){
-    Serial.println("test four failed");
-  } if (!five){
-    Serial.println("test five failed");
-  }
-  
-  return one and two and three and four and five;
+  bool batch_one = three and threefour and fourone and fourfour and fourfive;
 
   // 1, 2
   // 1 no transition
@@ -165,34 +153,23 @@ bool test_all_tests() {
     // 2-3
   bool twothree = test_transition(sDEMO, sLEARNING_COUNTDOWN, {LEARNING, 0, -1, 20000}, {19010, song_end, 0, 0}, {20010, 0, 3, 0}, false);
 
-}
-
-//TESTING tests
-//test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], true)
-
-// test_transition inputs: start state, end state, inputs, start var, end var, verbos 
-// INPUT 
-// curr_mode, num_keys, last_key, long mils;
-// VAR 
-// saved_clock, curr_song_index, countdown, num_correct_keys
+  bool batch_two = one and onetwo and onesix and two and twotwo and twothree;
 
 // STATES 5-6 tests 
 // transition from 5-4 
-bool test_54 = test_transition(5, 4, {LEARNING, 1, NOTE_A5, 4000}, 
-                {1500, 1, 3, 0}, {4000, 2, 3, 0}, true); 
+bool test_54 = test_transition((state) 5, (state) 4, {LEARNING, 1, NOTE_A5, 4000}, {1500, 1, 3, 0}, {4000, 2, 3, 0}, true); 
 // no state change from 5 
-bool test_55 = transition(5, 5, {LEARNING, 1, NOTE_B5, 3000}, 
-                {1500, 2, 3, 0}, {1500, 2, 3, 0}, true); 
+bool test_55 = test_transition((state) 5, (state) 5, {LEARNING, 1, NOTE_B5, 3000}, {1500, 2, 3, 0}, {1500, 2, 3, 0}, true); 
 
 // transition from 6-6 
-bool test_66_self = test_transition(6, 6, {TESTING, 0, -1, 2100}, 
-                {1000, 0, 3, 0}, {2000, 0, 2, 0}, true); 
+bool test_66_self = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {1000, 0, 3, 0}, {2000, 0, 2, 0}, true); 
 // transition from 6-7
-bool test_67 = test_transition(6, 7, {TESTING, 0, -1, 3000}, 
-                {2000, 0, 0, 0}, {3000, 0, 3, 0}, true); 
+bool test_67 = test_transition((state) 6, (state) 7, {TESTING, 0, -1, 3000}, {2000, 0, 0, 0}, {3000, 0, 3, 0}, true); 
 // no state change from 6 
-bool test_66 = test_transition(6, 6, {TESTING, 0, -1 2100}, 
-                {2000, 0, 1, 0}, {2000, 0, 1, 0}, true); 
+bool test_66 = test_transition((state) 6, (state) 6, {TESTING, 0, -1, 2100}, {2000, 0, 1, 0}, {2000, 0, 1, 0}, true); 
+
+
+ bool batch_three = test_54 and test_55 and test_66_self and test_67 and test_66;
 
 
 // 7-8(a) transition
@@ -216,17 +193,25 @@ bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TES
 // 8-8 no transition
 bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
+  bool batch_four = test_78a and test_78b and test_79 and test_710 and test_77 and test_87 and test_88;
+
 // 9-7 transition
 bool test_97 = test_transition(sNO_KEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
 
 // 9-9 no transition
-bool test_99 = test_transition(sNO_KEY_PRESSED_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_B5, 1000), {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+bool test_99 = test_transition(sNO_KEY_PRESSED_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_B5, 1000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
 // 10-1 transition
 bool test_101 = test_transition(sGAME_OVER, sWAIT_FOR_MODE, {TESTING, 0, NOTE_G5, 10000}, {0, 17, -1, 10}, {10000, 17, 3, 0}, true);
 
 // 10-10 no transition
 bool test_1010 = test_transition(sGAME_OVER, sGAME_OVER, {TESTING, 0, NOTE_G5, 5000}, {0, 17, -1, 10}, {0, 17, -1, 10}, true);
+
+  bool batch_five = test_97 and test_99 and test_101 and test_1010;
+
+  return batch_one and batch_two and batch_three and batch_four and batch_five;
+
+}
 
 //const state test_states_in[24] = {(state) 1, (state) 1, (state) 1, (state) 1, (state) 2, (state) 2, (state) 2, (state) 3, (state) 3, (state) 4, (state) 4, (state) 4, (state) 5, (state) 5, (state) 5, (state) 6, (state) 6, (state) 6, (state) 7, (state) 1, (state) 1, (state) 4, (state) 5, (state) 6};
 //const state test_states_out[24] = {(state) 1, (state) 1, (state) 2, (state) 6, (state) 2, (state) 3, (state) 3, (state) 4, (state) 7, (state) 4, (state) 5, (state) 5, (state) 2, (state) 6, (state) 7, (state) 6, (state) 1, (state) 7, (state) 7, (state) 2, (state) 6, (state) 5, (state) 2, (state) 7};

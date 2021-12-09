@@ -79,7 +79,7 @@ void setup() {
   WDT->CTRL.reg = WDT_CTRL_ENABLE;
   WDT->INTENSET.reg = WDT_INTENSET_EW;
 
-  //attachInterrupt(switchPin, update_mode, CHANGE);
+  attachInterrupt(switchPin, update_mode, CHANGE);
 
   if (test_all_tests()){
     Serial.println("All tests passed");
@@ -90,10 +90,9 @@ void setup() {
 
 void loop() {
 
-  curr_mode = LEARNING;
-  update_inputs();
+  /*update_inputs();
   CURRENT_STATE = update_fsm(CURRENT_STATE, millis(), num_keys, last_key, curr_mode);
-  delay(100);
+  delay(100);*/
   
 }
 
@@ -103,14 +102,12 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
   switch(cur_state) {
     case sWAIT_FOR_MODE: // 1  
       set_mode();
-    //Serial.println(curr_mode);
       if (curr_mode == TESTING) {
         curr_mode_for_print = "testing";
       }
       display_message("Mode: " + curr_mode_for_print);
       analogWrite(Ggreen, 0);
-      reset_keys(); 
-      //delay(500);  
+      reset_keys();  
       if (mils - saved_clock >= 10000 && curr_mode == LEARNING) { // 1-2
         WDT->CLEAR.reg = 0xA5;
         //display("LEARNING DEMO"); 
@@ -156,7 +153,7 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sLEARNING_COUNTDOWN: // 3
       Serial.println("in countdown"); 
-      //delay(1000); 
+      
       if (countdown > 0 && mils - saved_clock >= 1000) { // 3-3
         WDT->CLEAR.reg = 0xA5;
         display_message("Countdown " + String(countdown));
@@ -165,13 +162,12 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
         countdown -= 1;
         saved_clock = mils;
         next_state = sLEARNING_COUNTDOWN; 
-        //delay(500); 
       } else if (countdown <= 0 && mils - saved_clock >= 1000) { // 3-4
         WDT->CLEAR.reg = 0xA5;
         Serial.println("BEGIN PLAYING"); 
         light_led(song_notes[curr_song_index], GREEN, 255); 
         display_curr_index(1, song_end);
-        //countdown = 3; 
+        
         saved_clock = mils;
         reset_keys(); 
         next_state = sWAIT_FOR_KEY_LEARNING; 
@@ -181,7 +177,6 @@ state update_fsm(state cur_state, long mils, int num_keys, int last_key, mode cu
       break;
     case sWAIT_FOR_KEY_LEARNING: // 4
       Serial.println("in learning mode pls pause"); 
-      //delay(500); 
       if (num_keys == 0 && curr_song_index <= (song_end - 1) && 
       mils - saved_clock >= note_durations[curr_song_index]) { // 4-4
         WDT->CLEAR.reg = 0xA5;
