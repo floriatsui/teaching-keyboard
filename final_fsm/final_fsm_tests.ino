@@ -216,6 +216,18 @@ bool test_87 = test_transition(sKEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TES
 // 8-8 no transition
 bool test_88 = test_transition(sKEY_PRESSED_TESTING, sKEY_PRESSED_TESTING, {TESTING, 1, NOTE_G5, 2000}, {0, 0, -1, 0}, {0, 0, -1, 0}, true);
 
+// 9-7 transition
+bool test_97 = test_transition(sNO_KEY_PRESSED_TESTING, sWAIT_FOR_KEY_TESTING, {TESTING, 0, NOTE_B5, 2500}, {0, 0, -1, 0}, {2500, 1, -1, 0}, true);
+
+// 9-9 no transition
+bool test_99 = test_transition(sNO_KEY_PRESSED_TESTING, sNO_KEY_PRESSED_TESTING, {TESTING, 0, NOTE_B5, 1000), {0, 0, -1, 0}, {0, 0, -1, 0}, true);
+
+// 10-1 transition
+bool test_101 = test_transition(sGAME_OVER, sWAIT_FOR_MODE, {TESTING, 0, NOTE_G5, 10000}, {0, 17, -1, 10}, {10000, 17, 3, 0}, true);
+
+// 10-10 no transition
+bool test_1010 = test_transition(sGAME_OVER, sGAME_OVER, {TESTING, 0, NOTE_G5, 5000}, {0, 17, -1, 10}, {0, 17, -1, 10}, true);
+
 //const state test_states_in[24] = {(state) 1, (state) 1, (state) 1, (state) 1, (state) 2, (state) 2, (state) 2, (state) 3, (state) 3, (state) 4, (state) 4, (state) 4, (state) 5, (state) 5, (state) 5, (state) 6, (state) 6, (state) 6, (state) 7, (state) 1, (state) 1, (state) 4, (state) 5, (state) 6};
 //const state test_states_out[24] = {(state) 1, (state) 1, (state) 2, (state) 6, (state) 2, (state) 3, (state) 3, (state) 4, (state) 7, (state) 4, (state) 5, (state) 5, (state) 2, (state) 6, (state) 7, (state) 6, (state) 1, (state) 7, (state) 7, (state) 2, (state) 6, (state) 5, (state) 2, (state) 7};
 //const state_inputs test_input[24] = {{1,DOWN,600}, {2,UP,1600}, {4,DOWN,1600}, {3,UP,1600}, {3,DOWN,1500}, {1,LEFT,2000}, {0,LEFT,2000}, {0,RIGHT,2000}, {1,LEFT,0}, {1,UP,1500}, {1,RIGHT,2000}, {0,RIGHT,2000}, {4,DOWN,2000}, {4,LEFT,2000}, {0,DOWN,4}, {4,LEFT,2000}, {1,RIGHT,1500}, {0,RIGHT,2000}, {3,LEFT,4}, {3,DOWN,1600}, {3,LEFT,1600}, {1,RIGHT,2000}, {3,DOWN,1600}, {1,DOWN,1500}};
